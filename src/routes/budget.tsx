@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useState } from "react";
 import { ArrowLeft, Sprout, FlaskConical, Droplets, Bug, Users } from "lucide-react";
 import { useLang, type Key } from "@/lib/i18n";
@@ -34,10 +34,16 @@ const items: { key: Key; share: number; Icon: typeof Sprout }[] = [
 
 function BudgetScreen() {
   const { t } = useLang();
+  const navigate = useNavigate();
   const [selected, setSelected] = useState<number | "custom">(10000);
   const [customValue, setCustomValue] = useState("");
   const total = selected === "custom" ? Number(customValue) || 0 : selected;
   const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
+
+  const saveAndContinue = () => {
+    if (total > 0) window.localStorage.setItem("fs-budget", String(total));
+    navigate({ to: "/dashboard" });
+  };
 
   return (
     <main className="mx-auto w-full max-w-md px-5 pb-12 pt-8">
@@ -139,6 +145,7 @@ function BudgetScreen() {
 
       <button
         type="button"
+        onClick={saveAndContinue}
         className="mt-8 flex h-16 w-full items-center justify-center rounded-2xl text-xl font-bold text-primary-foreground transition-transform active:scale-[0.98]"
         style={{ background: "var(--gradient-primary)", boxShadow: "var(--shadow-card)" }}
       >

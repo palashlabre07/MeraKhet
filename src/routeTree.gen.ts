@@ -10,8 +10,13 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdvisoryRouteImport } from './routes/advisory'
 import { Route as BudgetRouteImport } from './routes/budget'
+import { Route as BuyersRouteImport } from './routes/buyers'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as MarketRouteImport } from './routes/market'
+import { Route as NotificationsRouteImport } from './routes/notifications'
+import { Route as ProfileRouteImport } from './routes/profile'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as ScanRouteImport } from './routes/scan'
 import { Route as SoilRouteImport } from './routes/soil'
@@ -22,14 +27,39 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdvisoryRoute = AdvisoryRouteImport.update({
+  id: '/advisory',
+  path: '/advisory',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BudgetRoute = BudgetRouteImport.update({
   id: '/budget',
   path: '/budget',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BuyersRoute = BuyersRouteImport.update({
+  id: '/buyers',
+  path: '/buyers',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MarketRoute = MarketRouteImport.update({
+  id: '/market',
+  path: '/market',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NotificationsRoute = NotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ProfileRoute = ProfileRouteImport.update({
+  id: '/profile',
+  path: '/profile',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RegisterRoute = RegisterRouteImport.update({
@@ -55,8 +85,13 @@ const WeatherRoute = WeatherRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/advisory': typeof AdvisoryRoute
   '/budget': typeof BudgetRoute
+  '/buyers': typeof BuyersRoute
   '/dashboard': typeof DashboardRoute
+  '/market': typeof MarketRoute
+  '/notifications': typeof NotificationsRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/scan': typeof ScanRoute
   '/soil': typeof SoilRoute
@@ -64,8 +99,13 @@ export interface FileRoutesByFullPath {
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/advisory': typeof AdvisoryRoute
   '/budget': typeof BudgetRoute
+  '/buyers': typeof BuyersRoute
   '/dashboard': typeof DashboardRoute
+  '/market': typeof MarketRoute
+  '/notifications': typeof NotificationsRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/scan': typeof ScanRoute
   '/soil': typeof SoilRoute
@@ -74,8 +114,13 @@ export interface FileRoutesByTo {
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/advisory': typeof AdvisoryRoute
   '/budget': typeof BudgetRoute
+  '/buyers': typeof BuyersRoute
   '/dashboard': typeof DashboardRoute
+  '/market': typeof MarketRoute
+  '/notifications': typeof NotificationsRoute
+  '/profile': typeof ProfileRoute
   '/register': typeof RegisterRoute
   '/scan': typeof ScanRoute
   '/soil': typeof SoilRoute
@@ -85,8 +130,13 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/advisory'
     | '/budget'
+    | '/buyers'
     | '/dashboard'
+    | '/market'
+    | '/notifications'
+    | '/profile'
     | '/register'
     | '/scan'
     | '/soil'
@@ -94,8 +144,13 @@ export interface FileRouteTypes {
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/advisory'
     | '/budget'
+    | '/buyers'
     | '/dashboard'
+    | '/market'
+    | '/notifications'
+    | '/profile'
     | '/register'
     | '/scan'
     | '/soil'
@@ -103,8 +158,13 @@ export interface FileRouteTypes {
   id:
     | '__root__'
     | '/'
+    | '/advisory'
     | '/budget'
+    | '/buyers'
     | '/dashboard'
+    | '/market'
+    | '/notifications'
+    | '/profile'
     | '/register'
     | '/scan'
     | '/soil'
@@ -113,8 +173,13 @@ export interface FileRouteTypes {
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdvisoryRoute: typeof AdvisoryRoute
   BudgetRoute: typeof BudgetRoute
+  BuyersRoute: typeof BuyersRoute
   DashboardRoute: typeof DashboardRoute
+  MarketRoute: typeof MarketRoute
+  NotificationsRoute: typeof NotificationsRoute
+  ProfileRoute: typeof ProfileRoute
   RegisterRoute: typeof RegisterRoute
   ScanRoute: typeof ScanRoute
   SoilRoute: typeof SoilRoute
@@ -130,6 +195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/advisory': {
+      id: '/advisory'
+      path: '/advisory'
+      fullPath: '/advisory'
+      preLoaderRoute: typeof AdvisoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/budget': {
       id: '/budget'
       path: '/budget'
@@ -137,11 +209,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BudgetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/buyers': {
+      id: '/buyers'
+      path: '/buyers'
+      fullPath: '/buyers'
+      preLoaderRoute: typeof BuyersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/dashboard': {
       id: '/dashboard'
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/market': {
+      id: '/market'
+      path: '/market'
+      fullPath: '/market'
+      preLoaderRoute: typeof MarketRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/notifications': {
+      id: '/notifications'
+      path: '/notifications'
+      fullPath: '/notifications'
+      preLoaderRoute: typeof NotificationsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/profile': {
+      id: '/profile'
+      path: '/profile'
+      fullPath: '/profile'
+      preLoaderRoute: typeof ProfileRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/register': {
@@ -177,8 +277,13 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdvisoryRoute: AdvisoryRoute,
   BudgetRoute: BudgetRoute,
+  BuyersRoute: BuyersRoute,
   DashboardRoute: DashboardRoute,
+  MarketRoute: MarketRoute,
+  NotificationsRoute: NotificationsRoute,
+  ProfileRoute: ProfileRoute,
   RegisterRoute: RegisterRoute,
   ScanRoute: ScanRoute,
   SoilRoute: SoilRoute,

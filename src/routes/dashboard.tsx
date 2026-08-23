@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   MapPin,
   CloudSun,
@@ -17,6 +18,29 @@ import {
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
+
+const BUDGET_KEY = "fs-budget";
+const DEFAULT_BUDGET = 10000;
+const SPENT = 3600;
+
+function useBudgetRemaining() {
+  const [remaining, setRemaining] = useState(DEFAULT_BUDGET - SPENT);
+  const [budget, setBudget] = useState(DEFAULT_BUDGET);
+
+  useEffect(() => {
+    const stored = window.localStorage.getItem(BUDGET_KEY);
+    if (stored) {
+      const parsed = Number(stored);
+      if (!Number.isNaN(parsed) && parsed > 0) {
+        setBudget(parsed);
+        setRemaining(Math.max(0, parsed - SPENT));
+      }
+    }
+  }, []);
+
+  const pct = budget > 0 ? (remaining / budget) * 100 : 0;
+  return { remaining, pct };
+}
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -49,6 +73,8 @@ const services = [
 function Dashboard() {
   const { lang } = useLang();
   const tr = (en: string, hi: string) => (lang === "hi" ? hi : en);
+  const { remaining, pct } = useBudgetRemaining();
+  const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
   return (
     <>
@@ -104,11 +130,11 @@ function Dashboard() {
             <p className="mt-2 text-sm font-semibold text-muted-foreground">
               {tr("Budget Remaining", "शेष बजट")}
             </p>
-            <p className="text-2xl font-extrabold text-foreground">₹6,400</p>
+            <p className="text-2xl font-extrabold text-foreground">{inr(remaining)}</p>
             <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full"
-                style={{ width: "64%", background: "var(--gradient-primary)" }}
+                style={{ width: `${pct}%`, background: "var(--gradient-primary)" }}
               />
             </div>
           </Card>

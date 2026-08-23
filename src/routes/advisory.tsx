@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   Landmark,
   FlaskConical,
@@ -15,7 +16,14 @@ import {
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen, ScreenHeader } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
-import { schemes, advisoryAlerts, farmingTips } from "@/data/advisory";
+import {
+  getSchemes,
+  getAdvisoryAlerts,
+  getFarmingTips,
+  type Scheme,
+  type AdvisoryAlert,
+  type FarmingTip,
+} from "@/services/advisoryService";
 
 export const Route = createFileRoute("/advisory")({
   head: () => ({
@@ -49,6 +57,15 @@ const iconMap: Record<string, LucideIcon> = {
 function AdvisoryScreen() {
   const { lang } = useLang();
   const tr = (en: string, hi: string) => (lang === "hi" ? hi : en);
+  const [schemes, setSchemes] = useState<Scheme[]>([]);
+  const [alerts, setAlerts] = useState<AdvisoryAlert[]>([]);
+  const [tips, setTips] = useState<FarmingTip[]>([]);
+
+  useEffect(() => {
+    getSchemes().then(setSchemes);
+    getAdvisoryAlerts().then(setAlerts);
+    getFarmingTips().then(setTips);
+  }, []);
 
   return (
     <>
@@ -116,7 +133,7 @@ function AdvisoryScreen() {
           {tr("Alerts", "चेतावनियाँ")}
         </h2>
         <div className="space-y-3">
-          {advisoryAlerts.map((a, i) => {
+          {alerts.map((a, i) => {
             const Icon = iconMap[a.Icon] ?? CloudRain;
             return (
               <Card key={i} className="border-2 border-primary">
@@ -135,7 +152,7 @@ function AdvisoryScreen() {
           {tr("Today's Recommendations", "आज की सिफारिशें")}
         </h2>
         <div className="space-y-3">
-          {farmingTips.map((tip, i) => (
+          {tips.map((tip, i) => (
             <Card key={i}>
               <p className="flex items-center gap-2 text-base font-bold text-foreground">
                 <Lightbulb className="h-5 w-5 text-primary" /> {tr(tip.title.en, tip.title.hi)}

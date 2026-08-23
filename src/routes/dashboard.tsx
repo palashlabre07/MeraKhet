@@ -18,6 +18,8 @@ import {
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
+import { getWeatherForecast, type WeatherData } from "@/services/weatherService";
+import { getSoilHealth, type SoilHealth } from "@/services/soilService";
 
 const BUDGET_KEY = "fs-budget";
 const DEFAULT_BUDGET = 10000;
@@ -76,6 +78,17 @@ function Dashboard() {
   const { remaining, pct } = useBudgetRemaining();
   const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
+  const [weather, setWeather] = useState<WeatherData | null>(null);
+  const [soil, setSoil] = useState<SoilHealth | null>(null);
+
+  useEffect(() => {
+    getWeatherForecast("Sehore, Madhya Pradesh").then((data) => setWeather(data.today));
+    getSoilHealth("field-1").then((data) => setSoil(data));
+  }, []);
+
+  const moisture = soil?.metrics[0]?.value ?? "42%";
+  const soilStatus = soil?.metrics[0]?.status ?? { en: "Good", hi: "अच्छी" };
+
   return (
     <>
       <Screen>
@@ -96,17 +109,22 @@ function Dashboard() {
           <div className="flex items-start justify-between">
             <div>
               <p className="text-sm font-semibold opacity-90">{tr("Today's Weather", "आज का मौसम")}</p>
-              <p className="mt-1 text-4xl font-extrabold">31°C</p>
-              <p className="text-sm opacity-90">{tr("Partly cloudy · Rain 40%", "आंशिक बादल · वर्षा 40%")}</p>
+              <p className="mt-1 text-4xl font-extrabold">{weather?.temperature ?? 31}°C</p>
+              <p className="text-sm opacity-90">
+                {tr(
+                  `Partly cloudy · Rain ${weather?.rainChance ?? 40}%`,
+                  `आंशिक बादल · वर्षा ${weather?.rainChance ?? 40}%`,
+                )}
+              </p>
             </div>
             <CloudSun className="h-14 w-14 opacity-90" />
           </div>
           <div className="mt-4 flex gap-4 text-sm font-medium opacity-95">
             <span className="flex items-center gap-1">
-              <Droplets className="h-4 w-4" /> 68%
+              <Droplets className="h-4 w-4" /> {weather?.humidity ?? 68}%
             </span>
             <span className="flex items-center gap-1">
-              <Thermometer className="h-4 w-4" /> 24° / 33°
+              <Thermometer className="h-4 w-4" /> {weather?.minTemp ?? 24}° / {weather?.maxTemp ?? 33}°
             </span>
             <Link to="/weather" className="ml-auto underline">
               {tr("View", "देखें")}
@@ -120,9 +138,9 @@ function Dashboard() {
             <p className="mt-2 text-sm font-semibold text-muted-foreground">
               {tr("Soil Health", "मिट्टी स्वास्थ्य")}
             </p>
-            <p className="text-2xl font-extrabold text-foreground">{tr("Good", "अच्छी")}</p>
+            <p className="text-2xl font-extrabold text-foreground">{tr(soilStatus.en, soilStatus.hi)}</p>
             <p className="text-xs text-muted-foreground">
-              {tr("Moisture 42% · pH 6.8", "नमी 42% · pH 6.8")}
+              {tr(`Moisture ${moisture} · pH 6.8`, `नमी ${moisture} · pH 6.8`)}
             </p>
           </Card>
           <Card>

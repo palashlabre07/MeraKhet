@@ -1,10 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Search, Phone, MapPin, Navigation } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen, ScreenHeader } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
-import { buyers } from "@/data/buyers";
+import { getBuyers, type Buyer } from "@/services/buyerService";
 
 export const Route = createFileRoute("/buyers")({
   head: () => ({
@@ -38,8 +38,13 @@ function BuyersScreen() {
   const tr = (en: string, hi: string) => (lang === "hi" ? hi : en);
   const [query, setQuery] = useState("");
   const [activeChip, setActiveChip] = useState("");
+  const [allBuyers, setAllBuyers] = useState<Buyer[]>([]);
 
-  const filtered = buyers.filter((b) => {
+  useEffect(() => {
+    getBuyers().then(setAllBuyers);
+  }, []);
+
+  const filtered = allBuyers.filter((b) => {
     const matchesQuery =
       b.name.en.toLowerCase().includes(query.toLowerCase()) ||
       b.name.hi.includes(query) ||

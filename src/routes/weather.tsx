@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { CloudSun, CloudRain, Thermometer, Droplets, Wind, Tractor } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen, ScreenHeader } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
+import { getWeatherForecast, type WeatherForecast } from "@/services/weatherService";
 
 export const Route = createFileRoute("/weather")({
   head: () => ({
@@ -25,20 +27,44 @@ export const Route = createFileRoute("/weather")({
 function WeatherScreen() {
   const { lang } = useLang();
   const tr = (en: string, hi: string) => (lang === "hi" ? hi : en);
+  const [forecast, setForecast] = useState<WeatherForecast | null>(null);
+
+  useEffect(() => {
+    getWeatherForecast("Sehore, Madhya Pradesh").then(setForecast);
+  }, []);
+
+  const today = forecast?.today;
+  const week = forecast?.week ?? [];
 
   const stats = [
-    { en: "Temperature", hi: "तापमान", value: "31°C", sub: tr("Feels 34°C", "महसूस 34°C"), Icon: Thermometer },
-    { en: "Humidity", hi: "आर्द्रता", value: "68%", sub: tr("High", "अधिक"), Icon: Droplets },
-    { en: "Wind Speed", hi: "हवा की गति", value: "12 km/h", sub: tr("North-West", "उत्तर-पश्चिम"), Icon: Wind },
-    { en: "Rain Chance", hi: "वर्षा संभावना", value: "40%", sub: tr("Evening", "शाम"), Icon: CloudRain },
-  ];
-
-  const week = [
-    { en: "Mon", hi: "सोम", t: "31°", r: "40%" },
-    { en: "Tue", hi: "मंगल", t: "29°", r: "80%" },
-    { en: "Wed", hi: "बुध", t: "28°", r: "65%" },
-    { en: "Thu", hi: "गुरु", t: "32°", r: "10%" },
-    { en: "Fri", hi: "शुक्र", t: "33°", r: "5%" },
+    {
+      en: "Temperature",
+      hi: "तापमान",
+      value: `${today?.temperature ?? 31}°C`,
+      sub: tr(`Feels ${today?.feelsLike ?? 34}°C`, `महसूस ${today?.feelsLike ?? 34}°C`),
+      Icon: Thermometer,
+    },
+    {
+      en: "Humidity",
+      hi: "आर्द्रता",
+      value: `${today?.humidity ?? 68}%`,
+      sub: tr(today?.humidityLabel.en ?? "High", today?.humidityLabel.hi ?? "अधिक"),
+      Icon: Droplets,
+    },
+    {
+      en: "Wind Speed",
+      hi: "हवा की गति",
+      value: today?.windSpeed ?? "12 km/h",
+      sub: tr(today?.windDirection.en ?? "North-West", today?.windDirection.hi ?? "उत्तर-पश्चिम"),
+      Icon: Wind,
+    },
+    {
+      en: "Rain Chance",
+      hi: "वर्षा संभावना",
+      value: `${today?.rainChance ?? 40}%`,
+      sub: tr(today?.rainTiming.en ?? "Evening", today?.rainTiming.hi ?? "शाम"),
+      Icon: CloudRain,
+    },
   ];
 
   return (
@@ -56,9 +82,12 @@ function WeatherScreen() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-semibold opacity-90">{tr("Today's Weather", "आज का मौसम")}</p>
-              <p className="mt-1 text-5xl font-extrabold">31°C</p>
+              <p className="mt-1 text-5xl font-extrabold">{today?.temperature ?? 31}°C</p>
               <p className="mt-1 text-base opacity-95">
-                {tr("Partly cloudy, light showers by evening", "आंशिक बादल, शाम तक हल्की बौछारें")}
+                {tr(
+                  today?.condition.en ?? "Partly cloudy, light showers by evening",
+                  today?.condition.hi ?? "आंशिक बादल, शाम तक हल्की बौछारें",
+                )}
               </p>
             </div>
             <CloudSun className="h-16 w-16 opacity-90" />
@@ -81,12 +110,12 @@ function WeatherScreen() {
             {tr("Rain Prediction — 5 Days", "वर्षा पूर्वानुमान — 5 दिन")}
           </p>
           <div className="flex justify-between">
-            {week.map((d) => (
-              <div key={d.en} className="flex flex-col items-center gap-1">
-                <span className="text-xs font-semibold text-muted-foreground">{tr(d.en, d.hi)}</span>
+            {week.map((d, i) => (
+              <div key={i} className="flex flex-col items-center gap-1">
+                <span className="text-xs font-semibold text-muted-foreground">{tr(d.day.en, d.day.hi)}</span>
                 <CloudRain className="h-6 w-6 text-primary" />
-                <span className="text-sm font-bold text-foreground">{d.t}</span>
-                <span className="text-xs text-muted-foreground">{d.r}</span>
+                <span className="text-sm font-bold text-foreground">{d.temp}</span>
+                <span className="text-xs text-muted-foreground">{d.rain}</span>
               </div>
             ))}
           </div>

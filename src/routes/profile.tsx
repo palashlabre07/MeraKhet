@@ -20,7 +20,14 @@ import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen, ScreenHeader } from "@/components/screen";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { useLang } from "@/lib/i18n";
-import { farmerProfile, cropHistory, scanHistory } from "@/data/farmer";
+import {
+  getFarmerProfile,
+  getCropHistory,
+  getScanHistory,
+  type FarmerProfile,
+  type CropHistoryItem,
+  type ScanHistoryItem,
+} from "@/services/farmerService";
 
 export const Route = createFileRoute("/profile")({
   head: () => ({
@@ -101,6 +108,19 @@ function ProfileScreen() {
   const { budget, remaining, spent } = useBudget();
   const inr = (n: number) => `₹${n.toLocaleString("en-IN")}`;
 
+  const [profile, setProfile] = useState<FarmerProfile | null>(null);
+  const [crops, setCrops] = useState<CropHistoryItem[]>([]);
+  const [scans, setScans] = useState<ScanHistoryItem[]>([]);
+
+  useEffect(() => {
+    getFarmerProfile("farmer-1").then(setProfile);
+    getCropHistory("farmer-1").then(setCrops);
+    getScanHistory("farmer-1").then(setScans);
+  }, []);
+
+  const p = profile;
+  const landUnit = p?.landUnit ?? { en: "Acres", hi: "एकड़" };
+
   return (
     <>
       <Screen>
@@ -118,9 +138,9 @@ function ProfileScreen() {
           </div>
           <div>
             <p className="text-xl font-extrabold text-foreground">
-              {tr(farmerProfile.name.en, farmerProfile.name.hi)}
+              {p ? tr(p.name.en, p.name.hi) : ""}
             </p>
-            <p className="text-sm text-muted-foreground">{farmerProfile.mobile}</p>
+            <p className="text-sm text-muted-foreground">{p?.mobile ?? ""}</p>
           </div>
         </Card>
 
@@ -128,15 +148,16 @@ function ProfileScreen() {
           {tr("Personal Details", "व्यक्तिगत विवरण")}
         </h2>
         <Card>
-          <DetailRow Icon={Phone} label={tr("Mobile", "मोबाइल")} value={farmerProfile.mobile} />
-          <DetailRow Icon={Mail} label={tr("Email", "ईमेल")} value={farmerProfile.email} />
+          <DetailRow Icon={Phone} label={tr("Mobile", "मोबाइल")} value={p?.mobile ?? ""} />
+          <DetailRow Icon={Mail} label={tr("Email", "ईमेल")} value={p?.email ?? ""} />
           <DetailRow
             Icon={MapPin}
             label={tr("Location", "स्थान")}
-            value={`${tr(farmerProfile.village.en, farmerProfile.village.hi)}, ${tr(
-              farmerProfile.district.en,
-              farmerProfile.district.hi,
-            )}, ${tr(farmerProfile.state.en, farmerProfile.state.hi)}`}
+            value={
+              p
+                ? `${tr(p.village.en, p.village.hi)}, ${tr(p.district.en, p.district.hi)}, ${tr(p.state.en, p.state.hi)}`
+                : ""
+            }
           />
         </Card>
 
@@ -147,12 +168,12 @@ function ProfileScreen() {
           <DetailRow
             Icon={Sprout}
             label={tr("Land Size", "भूमि आकार")}
-            value={`${farmerProfile.landSize} ${tr(farmerProfile.landUnit.en, farmerProfile.landUnit.hi)}`}
+            value={p ? `${p.landSize} ${tr(landUnit.en, landUnit.hi)}` : ""}
           />
           <DetailRow
             Icon={Sprout}
             label={tr("Primary Crop", "मुख्य फसल")}
-            value={tr(farmerProfile.primaryCrop.en, farmerProfile.primaryCrop.hi)}
+            value={p ? tr(p.primaryCrop.en, p.primaryCrop.hi) : ""}
           />
         </Card>
 
@@ -194,11 +215,11 @@ function ProfileScreen() {
           {tr("Crop History", "फसल इतिहास")}
         </h2>
         <Card>
-          {cropHistory.map((c, i) => (
+          {crops.map((c, i) => (
             <div
               key={i}
               className={`flex items-center gap-3 py-2 ${
-                i < cropHistory.length - 1 ? "border-b border-border" : ""
+                i < crops.length - 1 ? "border-b border-border" : ""
               }`}
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary">
@@ -207,8 +228,7 @@ function ProfileScreen() {
               <div className="flex-1">
                 <p className="text-base font-bold text-foreground">{tr(c.crop.en, c.crop.hi)}</p>
                 <p className="text-xs text-muted-foreground">
-                  {tr(c.season.en, c.season.hi)} · {c.area}{" "}
-                  {tr(farmerProfile.landUnit.en, farmerProfile.landUnit.hi)} · {c.yield} qt
+                  {tr(c.season.en, c.season.hi)} · {c.area} {tr(landUnit.en, landUnit.hi)} · {c.yield} qt
                 </p>
               </div>
               <p className="text-sm font-bold text-primary">{inr(c.revenue)}</p>
@@ -220,11 +240,11 @@ function ProfileScreen() {
           {tr("Disease Scan History", "रोग स्कैन इतिहास")}
         </h2>
         <Card>
-          {scanHistory.map((s, i) => (
+          {scans.map((s, i) => (
             <div
               key={i}
               className={`flex items-center gap-3 py-2 ${
-                i < scanHistory.length - 1 ? "border-b border-border" : ""
+                i < scans.length - 1 ? "border-b border-border" : ""
               }`}
             >
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-secondary">

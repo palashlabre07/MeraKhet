@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Droplets, Leaf, FlaskConical, Sprout, Thermometer, Waves } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Droplets, Leaf, FlaskConical, Sprout, Thermometer, Waves, type LucideIcon } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen, ScreenHeader } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
+import { getSoilHealth, type SoilHealth } from "@/services/soilService";
 
 export const Route = createFileRoute("/soil")({
   head: () => ({
@@ -22,24 +24,38 @@ export const Route = createFileRoute("/soil")({
   component: SoilScreen,
 });
 
+const iconMap: Record<string, LucideIcon> = {
+  Droplets,
+  Leaf,
+  FlaskConical,
+  Sprout,
+  Thermometer,
+};
+
 function SoilScreen() {
   const { lang } = useLang();
   const tr = (en: string, hi: string) => (lang === "hi" ? hi : en);
+  const [soil, setSoil] = useState<SoilHealth | null>(null);
 
-  const metrics = [
-    { en: "Soil Moisture", hi: "मिट्टी की नमी", value: "42%", pct: 42, status: tr("Optimal", "उपयुक्त"), Icon: Droplets },
-    { en: "Nitrogen (N)", hi: "नाइट्रोजन (N)", value: "268 kg/ha", pct: 72, status: tr("Good", "अच्छा"), Icon: Leaf },
-    { en: "Phosphorus (P)", hi: "फॉस्फोरस (P)", value: "18 kg/ha", pct: 38, status: tr("Low", "कम"), Icon: FlaskConical },
-    { en: "Potassium (K)", hi: "पोटैशियम (K)", value: "210 kg/ha", pct: 65, status: tr("Good", "अच्छा"), Icon: Sprout },
-    { en: "Soil Temperature", hi: "मिट्टी का तापमान", value: "27°C", pct: 60, status: tr("Normal", "सामान्य"), Icon: Thermometer },
-  ];
+  useEffect(() => {
+    getSoilHealth("field-1").then(setSoil);
+  }, []);
+
+  const metrics = (soil?.metrics ?? []).map((m) => ({
+    en: m.label.en,
+    hi: m.label.hi,
+    value: m.value,
+    pct: m.pct,
+    status: tr(m.status.en, m.status.hi),
+    Icon: iconMap[m.icon] ?? Droplets,
+  }));
 
   return (
     <>
       <Screen>
         <ScreenHeader
           title={tr("Soil Health", "मिट्टी स्वास्थ्य")}
-          subtitle={tr("Field 1 · Wheat · Updated 2h ago", "खेत 1 · गेहूँ · 2 घंटे पहले")}
+          subtitle={tr(soil?.fieldLabel.en ?? "Field 1 · Wheat · Updated 2h ago", soil?.fieldLabel.hi ?? "खेत 1 · गेहूँ · 2 घंटे पहले")}
         />
 
         <div className="space-y-3">
@@ -71,8 +87,10 @@ function SoilScreen() {
           </p>
           <p className="mt-2 text-base leading-relaxed text-muted-foreground">
             {tr(
-              "Moisture is sufficient today. Rain is likely tomorrow — delay irrigation by 2 days, then give a light 25 mm watering in the evening.",
-              "आज नमी पर्याप्त है। कल वर्षा संभव है — सिंचाई 2 दिन टालें, फिर शाम को हल्की 25 मिमी सिंचाई करें।",
+              soil?.recommendation.en ??
+                "Moisture is sufficient today. Rain is likely tomorrow — delay irrigation by 2 days, then give a light 25 mm watering in the evening.",
+              soil?.recommendation.hi ??
+                "आज नमी पर्याप्त है। कल वर्षा संभव है — सिंचाई 2 दिन टालें, फिर शाम को हल्की 25 मिमी सिंचाई करें।",
             )}
           </p>
         </Card>

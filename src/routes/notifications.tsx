@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import {
   CloudRain,
   Bug,
@@ -10,7 +11,7 @@ import {
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen, ScreenHeader } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
-import { notificationGroups, type NotificationType } from "@/data/notifications";
+import { getNotifications, type NotificationGroup, type NotificationType } from "@/services/notificationService";
 
 export const Route = createFileRoute("/notifications")({
   head: () => ({
@@ -41,6 +42,11 @@ const typeIcons: Record<NotificationType, LucideIcon> = {
 function NotificationsScreen() {
   const { lang } = useLang();
   const tr = (en: string, hi: string) => (lang === "hi" ? hi : en);
+  const [groups, setGroups] = useState<NotificationGroup[]>([]);
+
+  useEffect(() => {
+    getNotifications("farmer-1").then(setGroups);
+  }, []);
 
   return (
     <>
@@ -51,7 +57,7 @@ function NotificationsScreen() {
         />
 
         <div className="space-y-6">
-          {notificationGroups.map((group) => (
+          {groups.map((group) => (
             <div key={group.group.en}>
               <h2 className="mb-3 text-base font-bold text-muted-foreground">
                 {tr(group.group.en, group.group.hi)}

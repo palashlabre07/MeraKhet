@@ -1,9 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useState } from "react";
-import { Upload, Camera, Leaf, FlaskConical, AlertTriangle } from "lucide-react";
+import { Upload, Camera, Leaf, FlaskConical, TriangleAlert as AlertTriangle } from "lucide-react";
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen, ScreenHeader } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
+import { detectDisease, type DiseaseResult } from "@/services/diseaseService";
 
 export const Route = createFileRoute("/scan")({
   head: () => ({
@@ -27,6 +28,8 @@ function ScanScreen() {
   const { lang } = useLang();
   const tr = (en: string, hi: string) => (lang === "hi" ? hi : en);
   const [image, setImage] = useState<string | null>(null);
+  const [result, setResult] = useState<DiseaseResult | null>(null);
+  const [loading, setLoading] = useState(false);
 
   const pick = (capture: boolean) => {
     const input = document.createElement("input");
@@ -35,10 +38,28 @@ function ScanScreen() {
     if (capture) input.setAttribute("capture", "environment");
     input.onchange = () => {
       const file = input.files?.[0];
-      if (file) setImage(URL.createObjectURL(file));
+      if (file) {
+        setImage(URL.createObjectURL(file));
+        setLoading(true);
+        detectDisease(file).then((r) => {
+          setResult(r);
+          setLoading(false);
+        });
+      }
     };
     input.click();
   };
+
+  const confidencePct = result?.confidence ?? 94;
+  const diseaseName = result?.diseaseName ?? { en: "Leaf Rust (Puccinia triticina)", hi: "पत्ती रतुआ (पक्सीनिया ट्रिटिसिना)" };
+  const organic = result?.organicTreatment ?? [
+    { en: "Spray neem oil 5 ml per litre of water, early morning.", hi: "नीम तेल 5 मिली प्रति लीटर पानी, सुबह छिड़कें।" },
+    { en: "Apply Trichoderma-based bio-fungicide every 10 days.", hi: "हर 10 दिन में ट्राइकोडर्मा जैव-फफूंदनाशी डालें।" },
+  ];
+  const chemical = result?.chemicalTreatment ?? [
+    { en: "Propiconazole 25% EC — 1 ml per litre of water.", hi: "प्रोपिकोनाज़ोल 25% EC — 1 मिली प्रति लीटर पानी।" },
+    { en: "Repeat after 15 days. Wear mask and gloves.", hi: "15 दिन बाद दोहराएँ। मास्क और दस्ताने पहनें।" },
+  ];
 
   return (
     <>
@@ -90,7 +111,7 @@ function ScanScreen() {
                 {tr("Disease Name", "रोग का नाम")}
               </p>
               <p className="text-xl font-extrabold text-foreground">
-                {tr("Leaf Rust (Puccinia triticina)", "पत्ती रतुआ (पक्सीनिया ट्रिटिसिना)")}
+                {loading ? tr("Analyzing...", "विश्लेषण...") : tr(diseaseName.en, diseaseName.hi)}
               </p>
             </div>
           </div>
@@ -98,12 +119,12 @@ function ScanScreen() {
           <div className="mt-4">
             <div className="flex justify-between text-sm font-semibold text-muted-foreground">
               <span>{tr("Confidence", "विश्वसनीयता")}</span>
-              <span className="text-primary">94%</span>
+              <span className="text-primary">{confidencePct}%</span>
             </div>
             <div className="mt-2 h-3 w-full overflow-hidden rounded-full bg-muted">
               <div
                 className="h-full rounded-full"
-                style={{ width: "94%", background: "var(--gradient-primary)" }}
+                style={{ width: `${confidencePct}%`, background: "var(--gradient-primary)" }}
               />
             </div>
           </div>
@@ -114,18 +135,9 @@ function ScanScreen() {
             <Leaf className="h-5 w-5 text-primary" /> {tr("Organic Treatment", "जैविक उपचार")}
           </p>
           <ul className="mt-2 space-y-2 text-base leading-relaxed text-muted-foreground">
-            <li>
-              {tr(
-                "Spray neem oil 5 ml per litre of water, early morning.",
-                "नीम तेल 5 मिली प्रति लीटर पानी, सुबह छिड़कें।",
-              )}
-            </li>
-            <li>
-              {tr(
-                "Apply Trichoderma-based bio-fungicide every 10 days.",
-                "हर 10 दिन में ट्राइकोडर्मा जैव-फफूंदनाशी डालें।",
-              )}
-            </li>
+            {organic.map((item, i) => (
+              <li key={i}>{tr(item.en, item.hi)}</li>
+            ))}
           </ul>
         </Card>
 
@@ -134,18 +146,9 @@ function ScanScreen() {
             <FlaskConical className="h-5 w-5 text-primary" /> {tr("Chemical Treatment", "रासायनिक उपचार")}
           </p>
           <ul className="mt-2 space-y-2 text-base leading-relaxed text-muted-foreground">
-            <li>
-              {tr(
-                "Propiconazole 25% EC — 1 ml per litre of water.",
-                "प्रोपिकोनाज़ोल 25% EC — 1 मिली प्रति लीटर पानी।",
-              )}
-            </li>
-            <li>
-              {tr(
-                "Repeat after 15 days. Wear mask and gloves.",
-                "15 दिन बाद दोहराएँ। मास्क और दस्ताने पहनें।",
-              )}
-            </li>
+            {chemical.map((item, i) => (
+              <li key={i}>{tr(item.en, item.hi)}</li>
+            ))}
           </ul>
         </Card>
       </Screen>

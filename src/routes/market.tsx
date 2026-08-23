@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   Search,
   TrendingUp,
@@ -12,7 +12,7 @@ import {
 import { BottomNav } from "@/components/BottomNav";
 import { Card, Screen, ScreenHeader } from "@/components/screen";
 import { useLang } from "@/lib/i18n";
-import { marketPrices, sellRecommendation, type Trend } from "@/data/market";
+import { getMarketPrices, getSellRecommendation, type Trend, type MarketPrice, type SellRecommendation } from "@/services/marketService";
 
 export const Route = createFileRoute("/market")({
   head: () => ({
@@ -50,8 +50,15 @@ function MarketScreen() {
   const tr = (en: string, hi: string) => (lang === "hi" ? hi : en);
   const [query, setQuery] = useState("");
   const [location, setLocation] = useState(0);
+  const [prices, setPrices] = useState<MarketPrice[]>([]);
+  const [recommendation, setRecommendation] = useState<SellRecommendation | null>(null);
 
-  const filtered = marketPrices.filter(
+  useEffect(() => {
+    getMarketPrices(locations[location].en).then(setPrices);
+    getSellRecommendation().then(setRecommendation);
+  }, [location]);
+
+  const filtered = prices.filter(
     (p) =>
       p.crop.en.toLowerCase().includes(query.toLowerCase()) || p.crop.hi.includes(query),
   );
@@ -142,11 +149,10 @@ function MarketScreen() {
             {tr("Best Day to Sell", "बिक्री का सर्वोत्तम दिन")}
           </p>
           <p className="mt-2 text-base font-semibold text-primary">
-            {tr(sellRecommendation.crop.en, sellRecommendation.crop.hi)} —{" "}
-            {tr(sellRecommendation.day.en, sellRecommendation.day.hi)}
+            {recommendation ? `${tr(recommendation.crop.en, recommendation.crop.hi)} — ${tr(recommendation.day.en, recommendation.day.hi)}` : ""}
           </p>
           <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-            {tr(sellRecommendation.reason.en, sellRecommendation.reason.hi)}
+            {recommendation ? tr(recommendation.reason.en, recommendation.reason.hi) : ""}
           </p>
         </Card>
       </Screen>

@@ -11,7 +11,11 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BudgetRouteImport } from './routes/budget'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as RegisterRouteImport } from './routes/register'
+import { Route as ScanRouteImport } from './routes/scan'
+import { Route as SoilRouteImport } from './routes/soil'
+import { Route as WeatherRouteImport } from './routes/weather'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -23,40 +27,98 @@ const BudgetRoute = BudgetRouteImport.update({
   path: '/budget',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ScanRoute = ScanRouteImport.update({
+  id: '/scan',
+  path: '/scan',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SoilRoute = SoilRouteImport.update({
+  id: '/soil',
+  path: '/soil',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const WeatherRoute = WeatherRouteImport.update({
+  id: '/weather',
+  path: '/weather',
   getParentRoute: () => rootRouteImport,
 } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/register': typeof RegisterRoute
+  '/scan': typeof ScanRoute
+  '/soil': typeof SoilRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/register': typeof RegisterRoute
+  '/scan': typeof ScanRoute
+  '/soil': typeof SoilRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/budget': typeof BudgetRoute
+  '/dashboard': typeof DashboardRoute
   '/register': typeof RegisterRoute
+  '/scan': typeof ScanRoute
+  '/soil': typeof SoilRoute
+  '/weather': typeof WeatherRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/budget' | '/register'
+  fullPaths:
+    | '/'
+    | '/budget'
+    | '/dashboard'
+    | '/register'
+    | '/scan'
+    | '/soil'
+    | '/weather'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/budget' | '/register'
-  id: '__root__' | '/' | '/budget' | '/register'
+  to:
+    | '/'
+    | '/budget'
+    | '/dashboard'
+    | '/register'
+    | '/scan'
+    | '/soil'
+    | '/weather'
+  id:
+    | '__root__'
+    | '/'
+    | '/budget'
+    | '/dashboard'
+    | '/register'
+    | '/scan'
+    | '/soil'
+    | '/weather'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BudgetRoute: typeof BudgetRoute
+  DashboardRoute: typeof DashboardRoute
   RegisterRoute: typeof RegisterRoute
+  ScanRoute: typeof ScanRoute
+  SoilRoute: typeof SoilRoute
+  WeatherRoute: typeof WeatherRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -75,11 +137,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof BudgetRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
       fullPath: '/register'
       preLoaderRoute: typeof RegisterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/scan': {
+      id: '/scan'
+      path: '/scan'
+      fullPath: '/scan'
+      preLoaderRoute: typeof ScanRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/soil': {
+      id: '/soil'
+      path: '/soil'
+      fullPath: '/soil'
+      preLoaderRoute: typeof SoilRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/weather': {
+      id: '/weather'
+      path: '/weather'
+      fullPath: '/weather'
+      preLoaderRoute: typeof WeatherRouteImport
       parentRoute: typeof rootRouteImport
     }
   }
@@ -88,7 +178,11 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BudgetRoute: BudgetRoute,
+  DashboardRoute: DashboardRoute,
   RegisterRoute: RegisterRoute,
+  ScanRoute: ScanRoute,
+  SoilRoute: SoilRoute,
+  WeatherRoute: WeatherRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
